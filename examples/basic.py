@@ -39,6 +39,17 @@ def example_dialog():
         print("Токены:", completion.usage.total_tokens)
 
 
+def example_images():
+    """Vision-ввод: отправляем картинку (URL/файл/байты) и получаем описание."""
+    with LLMClient() as client:  # модель должна поддерживать изображения
+        answer = client.complete_with_images(
+            "Опиши, что изображено на картинке.",
+            images=["https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"],
+            detail="auto",
+        )
+        print("Vision:", answer)
+
+
 def example_stream():
     """Потоковый вывод по мере генерации."""
     with LLMClient() as client:
@@ -57,5 +68,6 @@ async def example_async():
 if __name__ == "__main__":
     example_simple()
     example_dialog()
+    example_images()
     example_stream()
     asyncio.run(example_async())

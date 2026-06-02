@@ -26,6 +26,7 @@ from .exceptions import (
     ConfigurationError,
     RateLimitError,
 )
+from .images import ImageSource, build_user_content
 from .models import ChatCompletion, Message, StreamChunk
 
 __all__ = ["LLMClient", "AsyncLLMClient"]
@@ -176,6 +177,21 @@ def _coerce_prompt_to_messages(
     return messages
 
 
+def _coerce_image_prompt_to_messages(
+    prompt: str,
+    images: Iterable[ImageSource],
+    system: Optional[str],
+    detail: Optional[str],
+) -> List[Dict[str, Any]]:
+    messages: List[Dict[str, Any]] = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append(
+        {"role": "user", "content": build_user_content(prompt, images, detail=detail)}
+    )
+    return messages
+
+
 def _iter_sse_lines(lines: Iterable[str]) -> Iterator[Dict[str, Any]]:
     """Парсит строки потока SSE в словари, пропуская [DONE] и служебные строки."""
     for line in lines:
@@ -279,6 +295,28 @@ class LLMClient(_BaseClient):
         """
         completion = self.chat(
             _coerce_prompt_to_messages(prompt, system), model=model, **kwargs
+        )
+        return completion.content
+
+    def complete_with_images(
+        self,
+        prompt: str,
+        images: Iterable[ImageSource],
+        *,
+        system: Optional[str] = None,
+        model: Optional[str] = None,
+        detail: Optional[str] = None,
+        **kwargs: Any,
+    ) -> str:
+        """Vision-вариант ``complete``: промпт + изображения -> строка ответа.
+
+        ``images`` — список источников: URL, data-URI, путь к файлу или bytes.
+        Требуется модель с поддержкой изображений (vision).
+        """
+        completion = self.chat(
+            _coerce_image_prompt_to_messages(prompt, images, system, detail),
+            model=model,
+            **kwargs,
         )
         return completion.content
 
@@ -391,6 +429,24 @@ class AsyncLLMClient(_BaseClient):
     ) -> str:
         completion = await self.chat(
             _coerce_prompt_to_messages(prompt, system), model=model, **kwargs
+        )
+        return completion.content
+
+    async def complete_with_images(
+        self,
+        prompt: str,
+        images: Iterable[ImageSource],
+        *,
+        system: Optional[str] = None,
+        model: Optional[str] = None,
+        detail: Optional[str] = None,
+        **kwargs: Any,
+    ) -> str:
+        """Vision-вариант ``complete``: промпт + изображения -> строка ответа."""
+        completion = await self.chat(
+            _coerce_image_prompt_to_messages(prompt, images, system, detail),
+            model=model,
+            **kwargs,
         )
         return completion.content
 

@@ -18,6 +18,7 @@ from .exceptions import (
     LLMError,
     RateLimitError,
 )
+from .images import build_user_content, image_part
 from .models import ChatCompletion, Choice, Message, StreamChunk, Usage
 
 __version__ = "0.1.0"
@@ -30,6 +31,8 @@ __all__ = [
     "Choice",
     "Usage",
     "StreamChunk",
+    "image_part",
+    "build_user_content",
     "LLMError",
     "ConfigurationError",
     "APIError",

@@ -84,6 +84,28 @@ with LLMClient() as client:
     print(completion.usage.total_tokens)  # израсходовано токенов
 ```
 
+### Изображения на вход (vision)
+
+Для мультимодальных моделей картинку можно передать как URL, data-URI,
+путь к локальному файлу или `bytes` — кодирование в base64 произойдёт само:
+
+```python
+with LLMClient(model="<vision-модель>") as client:
+    answer = client.complete_with_images(
+        "Что изображено на картинках?",
+        images=[
+            "https://example.com/photo.jpg",  # URL
+            "/path/to/local.png",             # локальный файл
+            open("scan.jpg", "rb").read(),    # сырые байты
+        ],
+        detail="high",   # необязательно: low / high / auto
+    )
+    print(answer)
+```
+
+Под капотом собирается `content` с частями `text` + `image_url`. Нужен
+ручной контроль — есть низкоуровневые `image_part()` и `build_user_content()`.
+
 ### Потоковый вывод
 
 ```python

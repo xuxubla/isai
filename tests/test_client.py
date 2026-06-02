@@ -120,6 +120,49 @@ def test_stream_yields_chunks():
 
 
 @respx.mock
+def test_complete_with_images_builds_multimodal_content(tmp_path):
+    import base64
+    import json
+
+    # Минимальный валидный PNG-заголовок -> детектится как image/png.
+    png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16
+    img_path = tmp_path / "pic.png"
+    img_path.write_bytes(png)
+
+    route = respx.post(URL).mock(
+        return_value=httpx.Response(200, json=_completion_body("на картинке png"))
+    )
+    with make_client() as client:
+        out = client.complete_with_images(
+            "Что на картинке?",
+            images=[
+                "https://example.com/a.jpg",  # URL как есть
+                str(img_path),                # локальный файл -> base64
+                png,                          # сырые байты -> base64
+            ],
+            detail="low",
+        )
+    assert out == "на картинке png"
+
+    payload = json.loads(route.calls.last.request.content)
+    content = payload["messages"][0]["content"]
+    assert content[0] == {"type": "text", "text": "Что на картинке?"}
+    assert content[1]["image_url"]["url"] == "https://example.com/a.jpg"
+    assert content[1]["image_url"]["detail"] == "low"
+    # файл и байты закодированы в data-URI с правильным MIME
+    assert content[2]["image_url"]["url"].startswith("data:image/png;base64,")
+    b64 = base64.b64encode(png).decode()
+    assert content[3]["image_url"]["url"] == f"data:image/png;base64,{b64}"
+
+
+def test_image_part_rejects_bad_type():
+    from isai import image_part
+
+    with pytest.raises(TypeError):
+        image_part(123)
+
+
+@respx.mock
 @pytest.mark.asyncio
 async def test_async_complete():
     from isai import AsyncLLMClient
