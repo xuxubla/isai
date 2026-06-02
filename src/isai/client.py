@@ -105,7 +105,7 @@ class _BaseClient:
             base_url
             or os.getenv("ISAI_BASE_URL")
             or os.getenv("LLM_BASE_URL")
-            or "https://api.ishosting.com/v1"
+            or "https://ai.ishosting.com/api"
         )
         # Убираем хвостовой слеш, чтобы не получить двойной // в пути.
         self.base_url = base_url.rstrip("/")

@@ -41,12 +41,12 @@ pip install "git+https://github.com/xuxubla/isai.git"
 | Переменная        | Аргумент      | Назначение                                  |
 |-------------------|---------------|---------------------------------------------|
 | `ISAI_API_KEY`    | `api_key`     | API-ключ (обязательно)                      |
-| `ISAI_BASE_URL`   | `base_url`    | Базовый URL API (по умолчанию `https://api.ishosting.com/v1`) |
+| `ISAI_BASE_URL`   | `base_url`    | Базовый URL API (по умолчанию `https://ai.ishosting.com/api`) |
 | `ISAI_MODEL`      | `model`       | Модель по умолчанию                         |
 
 ```bash
 export ISAI_API_KEY="ваш-ключ"
-export ISAI_BASE_URL="https://api.ishosting.com/v1"
+export ISAI_BASE_URL="https://ai.ishosting.com/api"
 export ISAI_MODEL="название-модели"
 ```
 
@@ -55,7 +55,7 @@ export ISAI_MODEL="название-модели"
 ```python
 from isai import LLMClient
 
-client = LLMClient(api_key="...", base_url="https://api.ishosting.com/v1", model="...")
+client = LLMClient(api_key="...", base_url="https://ai.ishosting.com/api", model="...")
 
 # Обработать входящие данные и получить ответ:
 answer = client.complete(

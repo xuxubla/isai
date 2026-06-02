@@ -2,7 +2,7 @@
 
 Перед запуском:
     export ISAI_API_KEY="ваш-ключ"
-    export ISAI_BASE_URL="https://api.ishosting.com/v1"   # при необходимости
+    export ISAI_BASE_URL="https://ai.ishosting.com/api"   # при необходимости
     export ISAI_MODEL="название-модели"
     python examples/basic.py
 """
